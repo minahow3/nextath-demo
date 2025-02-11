@@ -1,8 +1,8 @@
-import NextAuth from "next-auth";	
-import GoogleProvider from "next-auth/providers/google";	
+import NextAuth, { AuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_CLIENT_ID!,
@@ -13,9 +13,22 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
+  callbacks: {
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = token.sub || ""; // ユーザー ID を追加
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id; // トークンに ID を保存
+      }
+      return token;
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
-
 export { handler as GET, handler as POST };
