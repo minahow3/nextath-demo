@@ -1,7 +1,7 @@
-import NextAuth, { AuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
-export const authOptions: AuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -11,13 +11,13 @@ export const authOptions: AuthOptions = {
   callbacks: {
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub || ""; // ユーザー ID を追加
+        session.user.id = token.sub ?? ""; // `??` で undefined を防ぐ
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.sub = user.id; // トークンに ID を保存
+        token.sub = user.id;
       }
       return token;
     },
