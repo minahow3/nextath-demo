@@ -6,6 +6,9 @@ const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: { prompt: "consent", access_type: "offline", response_type: "code" }
+      }
     }),
   ],
   callbacks: {
@@ -21,8 +24,13 @@ const authOptions: NextAuthOptions = {
       }
       return token;
     },
+    async redirect({ url, baseUrl }) {
+      console.log("Redirect URL:", url, "Base URL:", baseUrl)
+      return baseUrl
+    }
   },
   secret: process.env.NEXTAUTH_SECRET,
+  
 };
 
 const handler = NextAuth(authOptions);
